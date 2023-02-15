@@ -17,7 +17,10 @@ def markup(r: dict, s: telebot.types.Message) -> telebot.types.InlineKeyboardMar
     menu = []
     for each in r['item']['messages'][1]['suggestedResponses']:
         try:
-            t = each['text'].encode('utf8')[:60].decode('utf8', errors='ignore') + '...'
+            if len(each['text'].encode('utf8')) >= 60:
+                t = each['text'].encode('utf8')[:50].decode('utf8', errors='ignore') + '...'
+            else:
+                t = each['text']
             menu.append(telebot.types.InlineKeyboardButton(t, callback_data=f'{s.message_id} {s.chat.id} {each["text"]}'))
         except Exception as e:
             print(f'Error: {e}')
