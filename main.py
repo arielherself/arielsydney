@@ -10,7 +10,10 @@ bot = AsyncTeleBot(TOKEN)
 sydney = EdgeGPT.Chatbot('cookie.json')
 
 def removeRef(msg: str):
-    ...
+    n = msg
+    for i in range(100):
+        n.replace(f'^{i}^', '')
+    return n
 
 def prompt(r: dict) -> str:
     p = ''
@@ -35,7 +38,7 @@ async def reply(message: telebot.types.Message) -> int:
                     s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
                     r = await sydney.ask(prompt=arg)
                     m = prompt(r)
-                    await bot.edit_message_text(r['item']['messages'][1]['text'].replace('**', '*') + '\n\n*You may ask...* \n' + m, s.chat.id, s.message_id, parse_mode='Markdown')
+                    await bot.edit_message_text(removeRef(r['item']['messages'][1]['text'].replace('**', '*')) + '\n\n*You may ask...* \n' + m, s.chat.id, s.message_id, parse_mode='Markdown')
             elif cmd == '/start':
                 await bot.reply_to(message, "Hello, I am Ariel Sydney, a LLM optimised for searching! Use /chat to start chatting.")
         else:
@@ -46,7 +49,7 @@ async def reply(message: telebot.types.Message) -> int:
                 s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
                 r = await sydney.ask(prompt=arg)
                 m = prompt(r)
-                await bot.edit_message_text(r['item']['messages'][1]['text'].replace('**', '*') + '\n\n*You may ask...* \n' + m, s.chat.id, s.message_id, parse_mode='Markdown')
+                await bot.edit_message_text(removeRef(r['item']['messages'][1]['text'].replace('**', '*')) + '\n\n*You may ask...* \n' + m, s.chat.id, s.message_id, parse_mode='Markdown')
     except Exception as e:
         print(f'Error: {e}')
 
