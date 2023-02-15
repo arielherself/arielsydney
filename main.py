@@ -16,7 +16,11 @@ def markup(r: dict, s: telebot.types.Message) -> telebot.types.InlineKeyboardMar
     m = telebot.types.InlineKeyboardMarkup()
     menu = []
     for each in r['item']['messages'][1]['suggestedResponses']:
-        menu.append(telebot.types.InlineKeyboardButton(each['text'], callback_data=f'{s.message_id} {s.chat.id} {each["text"]}'))
+        try:
+            menu.append(telebot.types.InlineKeyboardButton(each['text'], callback_data=f'{s.message_id} {s.chat.id} {each["text"]}'))
+        except Exception as e:
+            print(f'Error: {e}')
+            print(each['text'])
     m.add(*menu, row_width=1)
     return m
 
