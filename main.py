@@ -12,7 +12,7 @@ sydney = EdgeGPT.Chatbot('cookie.json')
 def removeRef(msg: str):
     n = msg
     for i in range(100):
-        n.replace(f'^{i}^', '')
+        n = n.replace(f'^{i}^', '')
     return n
 
 def prompt(r: dict) -> str:
