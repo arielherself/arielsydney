@@ -18,7 +18,7 @@ def editRef(msg: str, j: dict):
         ref = [each[each.find('http'):each.find('"')].strip() for each in card[:card.find('\n\n')].split('\n')]
         for i in range(100):
             if n.find(f'^{i}^') != -1:
-                n = n.replace(f'[^{i}^]', f'[{i}]({ref[i-1]})')
+                n = n.replace(f'[^{i}^]', f'[({i})]({ref[i-1]})')
     except Exception as e:
         print(f'Error: {e}')
     return n
