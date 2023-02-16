@@ -37,7 +37,17 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
             l = [telebot.types.InlineKeyboardButton('Response not parsed', url='https://t.me/arielsydneybot')]
             break
         l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=each['text']))
+    if m.text.startswith('/chat '):
+        t = m.text[m.text.find('/chat ')+6:].strip()
+    else:
+        t = m.text.strip()
+    l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t))
     u.add(*l)
+    return u
+
+def regenMarkup(t: str) -> telebot.types.InlineKeyboardMarkup:
+    u = telebot.types.InlineKeyboardMarkup()
+    u.add(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
     return u
 
 @bot.message_handler()
@@ -80,7 +90,12 @@ async def reply(message: telebot.types.Message) -> int:
     except Exception as e:
         oc = False
         print(f'Error: {e}')
-        await bot.reply_to(message, f'We encountered an error while generating your response: \n\n<code>{e}</code>', parse_mode='html')
+        if message.text.startswith('/chat '):
+            t = message.text[message.text.find('/chat ')+6:].strip()
+        else:
+            t = message.text.strip()
+        m = regenMarkup(t)
+        await bot.reply_to(message, f'I encountered an error while generating a response: \n\n<code>{e}</code>', markup=m, parse_mode='html')
 
 @bot.callback_query_handler(lambda _: True)
 async def callbackReply(callback_query: telebot.types.CallbackQuery):
@@ -91,7 +106,10 @@ async def callbackReply(callback_query: telebot.types.CallbackQuery):
         else:
             oc = True
             text = callback_query.data
-            s = await bot.reply_to(callback_query.message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
+            if callback_query.data.endswith(' $$'):
+                s = await bot.edit_message_text('*Processing...* \nIt may take a while.', callback_query.message.chat.id, callback_query.message.message_id, parse_mode='Markdown')
+            else:
+                s = await bot.reply_to(callback_query.message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
             r = await sydney.ask(prompt=text)        
             m = markup(r, s)
             p = prompt(r)
