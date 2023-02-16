@@ -98,7 +98,7 @@ async def reply(message: telebot.types.Message) -> int:
         else:
             t = message.text.strip()
         m = regenMarkup(t)
-        await bot.reply_to(message, f'I encountered an error while generating a response: \n\n<code>{e}</code>', markup=m, parse_mode='html')
+        await bot.reply_to(message, f'I encountered an error while generating a response: \n\n<code>{e}</code>', reply_markup=m, parse_mode='html')
 
 @bot.callback_query_handler(lambda _: True)
 async def callbackReply(callback_query: telebot.types.CallbackQuery):
