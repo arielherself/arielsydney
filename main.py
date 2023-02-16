@@ -29,7 +29,7 @@ def prompt(r: dict) -> str:
         p += f'  {i+1}. `{each["text"]}`\n'
     return p
 
-def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMarkup:
+def markup(r: dict, m: telebot.types.Message, query: str='') -> telebot.types.InlineKeyboardMarkup:
     u = telebot.types.InlineKeyboardMarkup()
     l = []
     for i, each in enumerate(r['item']['messages'][1]['suggestedResponses']):
@@ -37,10 +37,13 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
             l = [telebot.types.InlineKeyboardButton('Response not parsed', url='https://t.me/arielsydneybot')]
             break
         l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=each['text']))
-    if m.text.startswith('/chat '):
-        t = m.text[m.text.find('/chat ')+6:].strip()
+    if query != '':
+        t = query
     else:
-        t = m.text.strip()
+        if m.text.startswith('/chat '):
+            t = m.text[m.text.find('/chat ')+6:].strip()
+        else:
+            t = m.text.strip()
     l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
     u.add(*l)
     return u
@@ -112,7 +115,7 @@ async def callbackReply(callback_query: telebot.types.CallbackQuery):
             else:
                 s = await bot.reply_to(callback_query.message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
             r = await sydney.ask(prompt=text)        
-            m = markup(r, s)
+            m = markup(r, s, text)
             p = prompt(r)
             await bot.edit_message_text(editRef(f'*Query: {text}* \n' + r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
             oc = False
