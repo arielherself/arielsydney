@@ -71,7 +71,7 @@ async def reply(message: telebot.types.Message) -> int:
                     else:
                         s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
                         r = await sydney.ask(prompt=arg)
-                        m = markup(r, s)
+                        m = markup(r, message)
                         p = prompt(r)
                         await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
                 elif cmd == '/start':
@@ -83,7 +83,7 @@ async def reply(message: telebot.types.Message) -> int:
                 else:
                     s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
                     r = await sydney.ask(prompt=arg)
-                    m = markup(r, s)
+                    m = markup(r, message)
                     p = prompt(r)
                     await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
             oc = False
