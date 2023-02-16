@@ -41,7 +41,7 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
         t = m.text[m.text.find('/chat ')+6:].strip()
     else:
         t = m.text.strip()
-    l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t))
+    l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
     u.add(*l)
     return u
 
