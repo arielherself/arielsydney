@@ -45,9 +45,10 @@ def markup(r: dict, m: telebot.types.Message, query: str='') -> telebot.types.In
             t = m.text[m.text.find('/chat ')+6:].strip()
         else:
             t = m.text.strip()
-    if len(t.encode('utf8')) < 60:
-        l.append(telebot.types.InlineKeyboardButton('\u27F2 Regenerate response', callback_data=t+' $$'))
+        # l.append()
     u.add(*l)
+    if len(t.encode('utf8')) < 60:
+        u.row(telebot.types.InlineKeyboardButton('\u27F2 Regenerate response', callback_data=t+' $$'))
     return u
 
 def regenMarkup(t: str) -> telebot.types.InlineKeyboardMarkup:
