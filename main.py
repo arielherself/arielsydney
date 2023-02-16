@@ -33,7 +33,10 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
     u = telebot.types.InlineKeyboardMarkup()
     l = []
     for i, each in enumerate(r['item']['messages'][1]['suggestedResponses']):
-        l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=f'{m.message_id} {m.chat.id} {each["text"]}'))
+        if len(each['text'].encode('utf8')) >= 60:
+            l = [telebot.types.InlineKeyboardButton('Response not parsed')]
+        break
+        l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=each['text']))
     u.add(*l)
     return u
 
@@ -85,12 +88,12 @@ async def callbackReply(callback_query: telebot.types.CallbackQuery):
             await bot.reply_to(callback_query.message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
         else:
             oc = True
-            messageID, chatID, text = callback_query.data.split(' ', 2)
-            s = await bot.send_message(chatID, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
+            text = callback_query.data
+            s = await bot.reply_to(callback_query.message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
             r = await sydney.ask(prompt=text)        
             m = markup(r, s)
             p = prompt(r)
-            await bot.edit_message_text(editRef(f'*Question: {text}* \n' + r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
+            await bot.edit_message_text(editRef(f'*Query: {text}* \n' + r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
             oc = False
     except Exception as e:
         print(f'Error: {e}')
