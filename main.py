@@ -39,6 +39,7 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
 
 @bot.message_handler()
 async def reply(message: telebot.types.Message) -> int:
+    global oc
     try:
         if oc:
             await bot.reply_to(message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
@@ -78,6 +79,7 @@ async def reply(message: telebot.types.Message) -> int:
 
 @bot.callback_query_handler(lambda _: True)
 async def callbackReply(callback_query: telebot.types.CallbackQuery):
+    global oc
     try:
         if oc:
             await bot.reply_to(callback_query.message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
