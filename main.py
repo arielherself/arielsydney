@@ -34,7 +34,7 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
     l = []
     for i, each in enumerate(r['item']['messages'][1]['suggestedResponses']):
         if len(each['text'].encode('utf8')) >= 60:
-            l = [telebot.types.InlineKeyboardButton('Response not parsed')]
+            l = [telebot.types.InlineKeyboardButton('Response not parsed', url='https://t.me/arielsydneybot')]
             break
         l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=each['text']))
     u.add(*l)
