@@ -78,6 +78,7 @@ async def reply(message: telebot.types.Message) -> int:
                     await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
             oc = False
     except Exception as e:
+        oc = False
         print(f'Error: {e}')
         await bot.reply_to(message, f'We encountered an error while generating your response: \n\n<code>{e}</code>', parse_mode='html')
 
