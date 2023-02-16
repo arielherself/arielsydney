@@ -9,6 +9,8 @@ TOKEN = local_secrets.BOT_TOKEN
 bot = AsyncTeleBot(TOKEN)
 sydney = EdgeGPT.Chatbot('cookie.json')
 
+oc = False
+
 def editRef(msg: str, j: dict):
     try:
         n = msg
@@ -38,14 +40,30 @@ def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMar
 @bot.message_handler()
 async def reply(message: telebot.types.Message) -> int:
     try:
-        if message.text.split(' ', 1)[0].startswith('/'):
-            l = message.text.split(' ', 1)
-            if len(l) == 1:
-                cmd = l[0]
-                arg = ''
+        if oc:
+            await bot.reply_to(message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
+        else:
+            oc = True
+            if message.text.split(' ', 1)[0].startswith('/'):
+                l = message.text.split(' ', 1)
+                if len(l) == 1:
+                    cmd = l[0]
+                    arg = ''
+                else:
+                    cmd, arg = l
+                if cmd == '/chat':
+                    if arg.strip() == '':
+                        await bot.reply_to(message, "Hello, I'm here! Please say something like this:\n  <code>/chat Who is Ariel?</code>", parse_mode='html')
+                    else:
+                        s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
+                        r = await sydney.ask(prompt=arg)
+                        m = markup(r, s)
+                        p = prompt(r)
+                        await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
+                elif cmd == '/start':
+                    await bot.reply_to(message, "Hello, I am Ariel Sydney, a LLM optimised for searching! Use /chat to start chatting.")
             else:
-                cmd, arg = l
-            if cmd == '/chat':
+                arg = message.text
                 if arg.strip() == '':
                     await bot.reply_to(message, "Hello, I'm here! Please say something like this:\n  <code>/chat Who is Ariel?</code>", parse_mode='html')
                 else:
@@ -54,30 +72,24 @@ async def reply(message: telebot.types.Message) -> int:
                     m = markup(r, s)
                     p = prompt(r)
                     await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
-            elif cmd == '/start':
-                await bot.reply_to(message, "Hello, I am Ariel Sydney, a LLM optimised for searching! Use /chat to start chatting.")
-        else:
-            arg = message.text
-            if arg.strip() == '':
-                await bot.reply_to(message, "Hello, I'm here! Please say something like this:\n  <code>/chat Who is Ariel?</code>", parse_mode='html')
-            else:
-                s = await bot.reply_to(message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
-                r = await sydney.ask(prompt=arg)
-                m = markup(r, s)
-                p = prompt(r)
-                await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
+            oc = False
     except Exception as e:
         print(f'Error: {e}')
 
 @bot.callback_query_handler(lambda _: True)
 async def callbackReply(callback_query: telebot.types.CallbackQuery):
     try:
-        messageID, chatID, text = callback_query.data.split(' ', 2)
-        s = await bot.send_message(chatID, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
-        r = await sydney.ask(prompt=text)        
-        m = markup(r, s)
-        p = prompt(r)
-        await bot.edit_message_text(editRef(f'*Question: {text}* \n' + r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
+        if oc:
+            await bot.reply_to(callback_query.message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
+        else:
+            oc = True
+            messageID, chatID, text = callback_query.data.split(' ', 2)
+            s = await bot.send_message(chatID, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
+            r = await sydney.ask(prompt=text)        
+            m = markup(r, s)
+            p = prompt(r)
+            await bot.edit_message_text(editRef(f'*Question: {text}* \n' + r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
+            oc = False
     except Exception as e:
         print(f'Error: {e}')
 
