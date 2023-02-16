@@ -19,6 +19,7 @@ def editRef(msg: str, j: dict):
         for i in range(100):
             if n.find(f'^{i}^') != -1:
                 n = n.replace(f'[^{i}^]', f'[({i})]({ref[i-1]})')
+        n = n.replace('$$', '`')
     except Exception as e:
         print(f'Error: {e}')
     return n
@@ -45,14 +46,14 @@ def markup(r: dict, m: telebot.types.Message, query: str='') -> telebot.types.In
         else:
             t = m.text.strip()
     if len(t.encode('utf8')) < 60:
-        l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
+        l.append(telebot.types.InlineKeyboardButton('\u27F2 Regenerate response', callback_data=t+' $$'))
     u.add(*l)
     return u
 
 def regenMarkup(t: str) -> telebot.types.InlineKeyboardMarkup:
     u = telebot.types.InlineKeyboardMarkup()
     if len(t.encode('utf8')) < 60:
-        u.add(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
+        u.add(telebot.types.InlineKeyboardButton('\u27F2 Regenerate response', callback_data=t+' $$'))
     else:
         u.add(telebot.types.InlineKeyboardButton('Response not parsed', url='https://t.me/arielsydneybot'))
     return u
@@ -109,7 +110,7 @@ async def callbackReply(callback_query: telebot.types.CallbackQuery):
     global oc
     try:
         if oc:
-            await bot.reply_to(callback_query.message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
+            await bot.reply_to(callback_query.message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended. Please wait until the last response is generated.')
         else:
             oc = True
             text = callback_query.data
