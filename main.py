@@ -79,6 +79,7 @@ async def reply(message: telebot.types.Message) -> int:
             oc = False
     except Exception as e:
         print(f'Error: {e}')
+        await bot.reply_to(message, f'We encountered an error while generating your response: \n\n<code>{e}</code>', parse_mode='html')
 
 @bot.callback_query_handler(lambda _: True)
 async def callbackReply(callback_query: telebot.types.CallbackQuery):
