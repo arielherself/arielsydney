@@ -44,13 +44,17 @@ def markup(r: dict, m: telebot.types.Message, query: str='') -> telebot.types.In
             t = m.text[m.text.find('/chat ')+6:].strip()
         else:
             t = m.text.strip()
-    l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
+    if len(t.encode('utf8')) < 60:
+        l.append(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
     u.add(*l)
     return u
 
 def regenMarkup(t: str) -> telebot.types.InlineKeyboardMarkup:
     u = telebot.types.InlineKeyboardMarkup()
-    u.add(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
+    if len(t.encode('utf8')) < 60:
+        u.add(telebot.types.InlineKeyboardButton('Regenerate response', callback_data=t+' $$'))
+    else:
+        u.add(telebot.types.InlineKeyboardButton('Response not parsed', url='https://t.me/arielsydneybot'))
     return u
 
 @bot.message_handler()
