@@ -106,8 +106,9 @@ async def callbackReply(callback_query: telebot.types.CallbackQuery):
         else:
             oc = True
             text = callback_query.data
-            if callback_query.data.endswith(' $$'):
+            if text.endswith(' $$'):
                 s = await bot.edit_message_text('*Processing...* \nIt may take a while.', callback_query.message.chat.id, callback_query.message.message_id, parse_mode='Markdown')
+                text = text[:-3]
             else:
                 s = await bot.reply_to(callback_query.message, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
             r = await sydney.ask(prompt=text)        
