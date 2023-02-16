@@ -9,17 +9,31 @@ TOKEN = local_secrets.BOT_TOKEN
 bot = AsyncTeleBot(TOKEN)
 sydney = EdgeGPT.Chatbot('cookie.json')
 
-def removeRef(msg: str):
-    n = msg
-    for i in range(100):
-        n = n.replace(f'^{i}^', '')
+def editRef(msg: str, j: dict):
+    try:
+        n = msg
+        card = j['item']['messages'][1]['adaptiveCards'][0]['body'][0]['text']
+        ref = [each[each.find('http'):each.find('"')].strip() for each in card[:card.find('\n\n')].split('\n')]
+        for i in range(100):
+            if n.find(f'^{i}^') != -1:
+                n.replace(f'[^{i}^]', f'[^{i}^]({ref[i-1]})')
+    except Exception as e:
+        print(f'Error: {e}')
     return n
 
 def prompt(r: dict) -> str:
     p = ''
-    for each in r['item']['messages'][1]['suggestedResponses']:
-        p += f'  {each["text"]}\n'
+    for i, each in enumerate(r['item']['messages'][1]['suggestedResponses']):
+        p += f'  {i+1}. `{each["text"]}`\n'
     return p
+
+def markup(r: dict, m: telebot.types.Message) -> telebot.types.InlineKeyboardMarkup:
+    u = telebot.types.InlineKeyboardMarkup()
+    l = []
+    for i, each in enumerate(r['item']['messages'][1]['suggestedResponses']):
+        l.append(telebot.types.InlineKeyboardButton(str(i+1), callback_data=f'{m.message_id} {m.chat.id} {each["text"]}'))
+    u.add(*l)
+    return u
 
 @bot.message_handler()
 async def reply(message: telebot.types.Message) -> int:
@@ -53,16 +67,16 @@ async def reply(message: telebot.types.Message) -> int:
     except Exception as e:
         print(f'Error: {e}')
 
-# @bot.callback_query_handler(lambda _: True)
-# async def callbackReply(callback_query: telebot.types.CallbackQuery):
-#     try:
-#         messageID, chatID, text = callback_query.data.split(' ', 2)
-#         s = await bot.send_message(chatID, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
-#         r = await sydney.ask(prompt=text)        
-#         m = markup(r, s)
-#         await bot.edit_message_text(f'*Question: {text}* \n' + r['item']['messages'][1]['text'], s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
-#     except Exception as e:
-#         print(f'Error: {e}')
+@bot.callback_query_handler(lambda _: True)
+async def callbackReply(callback_query: telebot.types.CallbackQuery):
+    try:
+        messageID, chatID, text = callback_query.data.split(' ', 2)
+        s = await bot.send_message(chatID, '*Processing...* \nIt may take a while.', parse_mode='Markdown')
+        r = await sydney.ask(prompt=text)        
+        m = markup(r, s)
+        await bot.edit_message_text(f'*Question: {text}* \n' + r['item']['messages'][1]['text'], s.chat.id, s.message_id, reply_markup=m,  parse_mode='Markdown')
+    except Exception as e:
+        print(f'Error: {e}')
 
 if __name__ == '__main__':
     asyncio.run(bot.polling(non_stop=True, timeout=180))
