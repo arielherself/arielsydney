@@ -89,6 +89,9 @@ async def reply(message: telebot.types.Message) -> int:
                         await bot.edit_message_text(editRef(r['item']['messages'][1]['text'].replace('**', '*'), r) + '\n\n*You may ask...* \n' + p, s.chat.id, s.message_id, reply_markup=m, parse_mode='Markdown')
                 elif cmd == '/start':
                     await bot.reply_to(message, "Hello, I am Ariel Sydney, a LLM optimised for searching! Use /chat to start chatting.")
+                elif cmd == '/reset':
+                    await sydney.reset()
+                    await bot.reply_to(message, 'The conversation is reset.')
             else:
                 arg = message.text
                 if arg.strip() == '':
