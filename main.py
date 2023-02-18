@@ -71,9 +71,13 @@ async def reply(message: telebot.types.Message) -> int:
                 l = message.text.split(' ', 1)
                 if len(l) == 1:
                     cmd = l[0]
+                    if cmd.find('@') != -1:
+                        cmd = cmd[:cmd.find('@')]
                     arg = ''
                 else:
                     cmd, arg = l
+                    if cmd.find('@') != -1:
+                        cmd = cmd[:cmd.find('@')]
                 if cmd == '/chat':
                     if arg.strip() == '':
                         await bot.reply_to(message, "Hello, I'm here! Please say something like this:\n  <code>/chat Who is Ariel?</code>", parse_mode='html')
