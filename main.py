@@ -63,7 +63,7 @@ def regenMarkup(t: str) -> telebot.types.InlineKeyboardMarkup:
 async def reply(message: telebot.types.Message) -> int:
     global oc
     try:
-        if oc:
+        if oc and not message.text.startswith('/reset'):
             await bot.reply_to(message, 'Sorry, I can only process one message at a time, otherwise the account of Ariel would be suspended.')
         else:
             oc = True
